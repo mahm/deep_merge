@@ -70,6 +70,7 @@ module DeepMerge
     merge_debug = options[:merge_debug] || false
     overwrite_unmergeable = !options[:preserve_unmergeables]
     knockout_prefix = options[:knockout_prefix] || nil
+    overwrite_with_nil = options[:overwrite_with_nil] || nil
     raise InvalidParameter, "knockout_prefix cannot be an empty string in deep_merge!" if knockout_prefix == ""
     raise InvalidParameter, "overwrite_unmergeable must be true if knockout_prefix is specified in deep_merge!" if knockout_prefix && !overwrite_unmergeable
     # if present: we will split and join arrays on this char before merging
@@ -79,8 +80,10 @@ module DeepMerge
     # request that arrays of hashes are merged together
     merge_hash_arrays = options[:merge_hash_arrays] || false
     di = options[:debug_indent] || ''
-    # do nothing if source is nil
-    return dest if source.nil?
+    # if there is a overwrite_with_nil option, will be overwritten by nil
+    if source.nil?
+      return overwrite_with_nil ? nil : dest
+    end
     # if dest doesn't exist, then simply copy source to it
     if !(dest) && overwrite_unmergeable
       dest = source; return dest
